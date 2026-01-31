@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Be My Valentine 💘</title>
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Floating hearts */
+  .heart {
+    position: absolute;
+    bottom: -20px;
+    font-size: 20px;
+    animation: floatUp 6s linear infinite;
+    opacity: 0.7;
+  }
+
+  @keyframes floatUp {
+    from { transform: translateY(0); opacity: 0.8; }
+    to { transform: translateY(-110vh); opacity: 0; }
+  }
+
+  .card {
+    background: white;
+    padding: 30px;
+    width: 360px;
+    text-align: center;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    position: relative;
+    z-index: 10;
+  }
+
+  .media {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 15px;
+  }
+
+  .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  /* Buttons row */
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 10px;
+  }
+
+  .btn-slot {
+    width: 140px;
+    height: 80px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  button {
+    padding: 10px 22px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+  }
+
+  .yes {
+    background: #ff4d6d;
+    color: white;
+  }
+
+  .no {
+    background: #ccc;
+    position: absolute;
+    transition: transform 0.25s ease;
+  }
+
+  .no.locked {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #responseText {
+    margin-top: 15px;
+    min-height: 24px;
+    color: #555;
+  }
+
+  .yes-gif {
+    display: none;
+    margin-top: 20px;
+  }
+
+  .yes-gif img {
+    width: 220px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="media">
+    <img src="https://media.tenor.com/qdkmR_oG70sAAAAM/puss-in-boots-puss-in-boots-eyes.gif" />
+  </div>
+
+  <h1>Will you be my Valentine? 💖</h1>
+
+  <div class="buttons">
+    <div class="btn-slot">
+      <button class="yes" onclick="yesClicked()">Yes</button>
+    </div>
+
+    <div class="btn-slot">
+      <button class="no" id="noBtn"
+        onclick="noClicked()"
+        onmouseover="moveNo()"
+        onmouseleave="resetNo()"
+        ontouchstart="moveNo()">No</button>
+    </div>
+  </div>
+
+  <p id="responseText"></p>
+
+  <div class="yes-gif" id="yesGif">
+    <img src="https://i.pinimg.com/originals/4c/62/b8/4c62b8664b2aa5d5c16e080936e52a88.gif" />
+    <p>BEST. DECISION. EVER. 💘🥰</p>
+  </div>
+</div>
+
+<script>
+  const noResponses = [
+    "Are you sure? 🥺",
+    "That hurts a little 💔",
+    "Please think again 😭",
+    "I’m not giving up 😤",
+    "Okay now you’re just teasing 😌"
+  ];
+
+  let noIndex = 0;
+
+  function noClicked() {
+    document.getElementById("responseText").innerText =
+      noResponses[noIndex];
+    noIndex = (noIndex + 1) % noResponses.length;
+  }
+
+  function yesClicked() {
+    document.getElementById("responseText").innerText =
+      "YAY!! I knew you’d say yes 💘🥰";
+
+    document.getElementById("yesGif").style.display = "block";
+
+    const noBtn = document.getElementById("noBtn");
+    noBtn.classList.add("locked");
+    noBtn.style.transform = "translate(0, 0)";
+  }
+
+  function moveNo() {
+    const noBtn = document.getElementById("noBtn");
+    const slot = noBtn.parentElement;
+
+    const slotRect = slot.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+
+    // Cursor or touch position
+    const clientX = event?.clientX || event?.touches?.[0]?.clientX;
+    const clientY = event?.clientY || event?.touches?.[0]?.clientY;
+
+    // Button center
+    const btnCenterX = btnRect.left + btnRect.width / 2;
+    const btnCenterY = btnRect.top + btnRect.height / 2;
+
+    // Direction away from cursor
+    let dx = btnCenterX - clientX;
+    let dy = btnCenterY - clientY;
+
+    // Normalize
+    const length = Math.sqrt(dx * dx + dy * dy) || 1;
+    dx /= length;
+    dy /= length;
+
+    // Push distance
+    const distance = 80;
+
+    let newX = dx * distance;
+    let newY = dy * distance;
+
+    // Clamp inside slot
+    const maxX = slotRect.width / 2 - btnRect.width / 2;
+    const maxY = slotRect.height / 2 - btnRect.height / 2;
+
+    newX = Math.max(-maxX, Math.min(maxX, newX));
+    newY = Math.max(-maxY, Math.min(maxY, newY));
+
+    noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
+  }
+
+  function resetNo() {
+    const noBtn = document.getElementById("noBtn");
+    noBtn.style.transform = "translate(0, 0)";
+  }
+
+  // Floating hearts
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerText = "❤️";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = 4 + Math.random() * 4 + "s";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 8000);
+  }, 400);
+</script>
+
+</body>
+</html>
